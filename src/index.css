@@ -1,0 +1,180 @@
+body {
+  margin: 0;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif;
+}
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+.table {
+  width: 80%;
+  margin: auto;
+}
+.main {
+  position: relative;
+  width: 80%;
+  margin: auto;
+  margin-top: 20px;
+}
+.Polaris-Layout__Section p {
+  font-weight: 500;
+}
+.btn {
+  background-color: #006e52;
+  color: white;
+}
+.form-search {
+  width: auto;
+  display: flex;
+  width: 30%;
+}
+.flex {
+  display: flex;
+  justify-content: space-between;
+}
+#search {
+  height: 40px;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+.userManager {
+  color: #006e52;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  height: 100px;
+  display: flex;
+  padding-top: 20px;
+  justify-content: center;
+  background-color: white;
+}
+.Polaris-DisplayText {
+  color: #006e52;
+}
+.Polaris-Tabs__Wrapper {
+  margin: auto;
+  width: 77%;
+}
+.Polaris-Tabs__Wrapper ul {
+  margin-left: 35%;
+}
+.Polaris-Tabs__Wrapper ul li {
+  color: #006e52;
+}
+.Polaris-Tabs__Tab span {
+  font-weight: bold;
+  color: #006e52;
+  font-size: 20px;
+}
+.menu {
+  align-items: center;
+}
+.form {
+  width: 50%;
+  margin: auto;
+  height: auto;
+  padding-bottom: 80px;
+}
+.Polaris-Card__Section .form {
+  margin-top: -20px;
+}
+.Polaris-Connected input {
+  height: 50px;
+}
+
+.form .Polaris-Card__Section {
+  height: auto;
+}
+a {
+  text-decoration: solid;
+  list-style: none;
+  color: #006e52;
+  font-weight: normal;
+}
+.Polaris-Button__Text > .Polaris-Link:hover {
+  color: white;
+}
+.Polaris-Button__Text > .Polaris-Link {
+  color: white;
+}
+/* .router{
+  height: 50px;
+} */
+.router {
+  display: flex;
+  justify-content: center;
+  width: 80%;
+  margin: auto;
+  height: 40px;
+}
+.router a:hover {
+  background-color: white;
+  color: #006e52;
+  border: 2px solid #006e52;
+}
+.router a {
+  text-align: center;
+  border-radius: 5px;
+  margin-top: 10px;
+  margin-left: 10px;
+  color: white;
+  background-color: #006e52;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 17px;
+  height: 100%;
+  line-height: 40px;
+  width: 100px;
+}
+@media only screen and (max-width: 450px) {
+  .Polaris-Layout {
+    width: 270px;
+  }
+  #search {
+    width: 140px;
+    margin-left: -100px;
+  }
+  .Polaris-Layout .Polaris-DisplayText {
+    display: none;
+  }
+  .table {
+    width: 100%;
+  }
+  .form .Polaris-Layout {
+    width: 380px;
+    margin-left: -90px;
+  }
+  .table .Polaris-Layout {
+    width: 100%;
+  }
+  .Polaris-Card__Section {
+    margin-left: 0px;
+  }
+}
+@media only screen and (max-width: 740px) {
+  .main,
+  .list {
+    width: 100%;
+  }
+  .form .Polaris-Layout {
+    margin-left: -90px;
+  }
+  .Polaris-Layout {
+    align-items: center;
+  }
+  .Polaris-Tabs__Wrapper {
+    display: inline;
+    margin-left: -100px;
+  }
+  .Polaris-Tabs__Wrapper ul li {
+    margin-left: -25px;
+  }
+}
+@media only screen and (max-width: 1200px) {
+  .form {
+    width: 60%;
+  }
+  .Polaris-Tabs__Wrapper ul {
+    margin-left: 30%;
+  }
+}
