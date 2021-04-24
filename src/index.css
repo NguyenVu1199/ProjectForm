@@ -38,6 +38,9 @@ code {
   border-radius: 5px;
   margin-right: 10px;
 }
+.btn_search button {
+  height: 40px;
+}
 .userManager {
   color: #006e52;
   margin-bottom: 10px;
@@ -70,7 +73,7 @@ code {
   align-items: center;
 }
 .form {
-  width: 50%;
+  width: 35%;
   margin: auto;
   height: auto;
   padding-bottom: 80px;
@@ -97,9 +100,10 @@ a {
 .Polaris-Button__Text > .Polaris-Link {
   color: white;
 }
-/* .router{
-  height: 50px;
-} */
+.input_search {
+  margin-right: 5px;
+  width: 220px;
+}
 .router {
   display: flex;
   justify-content: center;
@@ -127,11 +131,22 @@ a {
   width: 100px;
 }
 @media only screen and (max-width: 450px) {
-  .Polaris-Layout {
-    width: 270px;
+  
+  .btn_search button{
+    width: 60px;
+  }
+  .btn_search{
+    position: absolute;
+    margin-left: 65px;
+  }
+  .delRowSelect {
+    bottom: 0px;
+    margin-left: -145px;
+    position: absolute;
+    margin-bottom: 10px;
   }
   #search {
-    width: 140px;
+    width: 160px;
     margin-left: -100px;
   }
   .Polaris-Layout .Polaris-DisplayText {
@@ -139,19 +154,16 @@ a {
   }
   .table {
     width: 100%;
-  }
-  .form .Polaris-Layout {
-    width: 380px;
-    margin-left: -90px;
+    height: 620px;
   }
   .table .Polaris-Layout {
-    width: 100%;
+    width: 104%;
   }
   .Polaris-Card__Section {
-    margin-left: 0px;
+    margin-left: 10px;
   }
 }
-@media only screen and (max-width: 740px) {
+@media only screen and (max-width: 800px) {
   .main,
   .list {
     width: 100%;
@@ -166,6 +178,10 @@ a {
     display: inline;
     margin-left: -100px;
   }
+  .delRowSelect {
+    position: absolute;
+    left: 100px;
+  }
   .Polaris-Tabs__Wrapper ul li {
     margin-left: -25px;
   }
@@ -177,4 +193,15 @@ a {
   .Polaris-Tabs__Wrapper ul {
     margin-left: 30%;
   }
+}
+
+.Polaris-DataTable__TableRow button > a:hover {
+  text-decoration: none;
+}
+.actions {
+  width: 65px;
+}
+.delRowSelect {
+  position: absolute;
+  left: 285px;
 }
