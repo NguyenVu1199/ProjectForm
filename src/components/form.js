@@ -38,23 +38,27 @@ const Form = (props) => {
   const id = props.match.params.id;
   console.log(props.match);
   //change input fullname
-  const onChangeName = useCallback((value) => {
-    setName(value);
-    if (value === "" || value == null) {
-      setErrorNameEmpty(true);
-      setErrorNameType(false);
-      setNameValid(false);
-    } else if (value.length < 5) {
-      setErrorNameType(true);
-      setErrorNameEmpty(false);
-      setNameValid(false);
-    } else {
-      console.log(value);
-      setNameValid(true);
-      setErrorNameEmpty(false);
-      setErrorNameType(false);
-    }
-  }, []);
+  const onChangeName = useCallback(
+    (value) => {
+      setName(value);
+      console.log(valueName);
+      if (value === "" || value == null) {
+        setErrorNameEmpty(true);
+        setErrorNameType(false);
+        setNameValid(false);
+      } else if (value.length < 5) {
+        setErrorNameType(true);
+        setErrorNameEmpty(false);
+        setNameValid(false);
+      } else {
+        console.log(value);
+        setNameValid(true);
+        setErrorNameEmpty(false);
+        setErrorNameType(false);
+      }
+    },
+    [valueName]
+  );
 
   //change input Address
   const onChangeAdd = useCallback((value) => {
@@ -172,6 +176,7 @@ const Form = (props) => {
           phone: valuePhone,
           email: valueEmail,
           address: valueAdd,
+          isChecked: "false",
         },
         {
           headers: {
