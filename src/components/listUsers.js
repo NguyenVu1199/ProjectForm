@@ -16,7 +16,27 @@ const ListUser = (props) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const [search, setSearch] = useState();
-  console.log(search);
+  const [btnNext, setBtnNext] = useState(true);
+  const [btnPrev, setBtnPrev] = useState(false);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const searchData = (data) => {
+    if (search === null || search === "" || search === undefined) {
+      return data;
+    } else {
+      const col = data[0] && Object.keys(data[0]);
+      return data.filter((row) =>
+        col.some(
+          (column) =>
+            row[column].toLowerCase().indexOf(search.toLowerCase()) > -1
+        )
+      );
+    }
+  };
+  const currentItems = searchData(data).slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
   const onDeleteUser = async (id) => {
     // eslint-disable-next-line no-restricted-globals
     if (confirm("Bạn có chắc chắn xóa không?")) {
@@ -37,20 +57,13 @@ const ListUser = (props) => {
     if (total >= searchData(data).length) {
       setBtnNext(false);
       setBtnPrev(true);
-    } else if (currentItems < 5) {
-      setBtnNext(false);
-    } else if (5 < total < searchData(data).length) {
+    } else {
       setBtnPrev(true);
-      setBtnNext(true);
-    } else if (total === 5) {
-      setBtnPrev(false);
-      setBtnNext(true);
     }
   };
-
   const onPrevPage = () => {
     setCurrentPage(currentPage - 1);
-    if (currentPage === 2) {
+    if (currentPage === 2 || currentPage === 1) {
       setBtnNext(true);
       setBtnPrev(false);
     } else {
@@ -67,35 +80,55 @@ const ListUser = (props) => {
         console.log(err);
       });
   }, []);
-  function searchData(data) {
-    if (search === null || search === "" || search === undefined) {
-      console.log(undefined);
-      console.log(data);
-      return data;
-    } else {
-      console.log("Lọc");
-      const col = data[0] && Object.keys(data[0]);
-      return data.filter((row) =>
-        col.some(
-          (column) =>
-            row[column].toLowerCase().indexOf(search.toLowerCase()) > -1
-        )
-      );
-    }
-  }
+  const onChangeKeySearch = (value) => {
+    setSearch(value);
+    console.log(search);
+    setCurrentPage(1);
+  };
+  const fetchAllData = () => {
+    fetch(`https://606efb3f0c054f0017658138.mockapi.io/api/listUsers`)
+      .then((response) => response.json())
+      .then((data) => {
+        setData(data);
+      })
+      .then((err) => {
+        console.log(err);
+      });
+  };
 
-  const [btnNext, setBtnNext] = useState(true);
-  const [btnPrev, setBtnPrev] = useState(false);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = searchData(data).slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
-
+  const editStatusItems = async (id, test) => {
+    await callApi(
+      `listUsers/${id}`,
+      "PUT",
+      {
+        isChecked: test,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    ).catch((error) => {
+      console.log("axios error:", error);
+    });
+    fetchAllData();
+  };
   var rows = [];
   currentItems.forEach((item) => {
     rows.push([
+      <div key={item.id}>
+        <input
+          type="checkbox"
+          value={item.id}
+          onChange={() =>
+            editStatusItems(
+              item.id,
+              item.isChecked === "true" ? "false" : "true"
+            )
+          }
+          checked={item.isChecked === "true" ? true : false}
+        ></input>
+      </div>,
       item.id,
       item.fullname,
       item.email,
@@ -126,7 +159,6 @@ const ListUser = (props) => {
           Delete
         </Button>
       </div>,
-      <Checkbox></Checkbox>,
     ]);
   });
 
@@ -160,7 +192,7 @@ const ListUser = (props) => {
               <input
                 id="search"
                 className="form-control"
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => onChangeKeySearch(e.target.value)}
                 value={search}
                 type="text"
                 placeholder="Enter your key search..."
@@ -173,7 +205,7 @@ const ListUser = (props) => {
             <Card>
               <DataTable
                 columnContentTypes={[
-                  "text",
+                  "",
                   "text",
                   "text",
                   "text",
@@ -182,13 +214,13 @@ const ListUser = (props) => {
                   "text",
                 ]}
                 headings={[
+                  <Checkbox></Checkbox>,
                   "STT",
                   "Full Name",
                   "Email",
                   "Phone",
                   "Address",
                   "Actions",
-                  "All",
                 ]}
                 rows={rows}
               />
