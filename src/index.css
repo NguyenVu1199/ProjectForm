@@ -194,12 +194,8 @@ a {
     margin-left: 30%;
   }
 }
-
 .Polaris-DataTable__TableRow button > a:hover {
   text-decoration: none;
-}
-.actions {
-  width: 65px;
 }
 .delRowSelect {
   position: absolute;
