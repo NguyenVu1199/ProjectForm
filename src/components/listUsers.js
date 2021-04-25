@@ -1,323 +1,295 @@
+import { useState, useCallback, useEffect } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
+import callApi from "./../callApi/callApi";
 import {
+  TextField,
+  FormLayout,
+  Button,
+  InlineError,
   Card,
-  DataTable,
-  Pagination,
   Layout,
   DisplayText,
-  Button,
 } from "@shopify/polaris";
-import { Link } from "react-router-dom";
-import "@shopify/polaris/dist/styles.css";
-import { useEffect, useState } from "react";
-import callApi from "../callApi/callApi";
-const ListUser = (props) => {
-  const [checkAll, setCheckedAll] = useState(false);
-  const [data, setData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
-  const [sortFullName, setSortFullName] = useState(false);
-  const [sortEmail, setSortEmail] = useState(false);
-  const [sortPhone, setSortPhone] = useState(false);
-  const [sortAddress, setAddress] = useState(false);
-  const [search, setSearch] = useState();
-  const [btnNext, setBtnNext] = useState(true);
-  const [btnPrev, setBtnPrev] = useState(false);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const sortUsersFN = () => {
-    setSortFullName(!sortFullName);
-  };
-  const sortUsersEmail = () => {
-    setSortEmail(!sortEmail);
-  };
-  const sortUsersPhone = () => {
-    setSortPhone(!sortPhone);
-  };
-  const sortUserAddress = (data) => {
-    setAddress(!sortAddress);
-  };
-  const searchData = (data) => {
-    if (search === null || search === "" || search === undefined) {
-      if (sortFullName) {
-        data = data.sort(function (a, b) {
-          if (a.fullname < b.fullname) {
-            return -1;
-          }
-          if (a.fullname > b.fullname) {
-            return 1;
-          }
-          return 0;
-        });
-      }
-      if (!sortFullName) {
-        data = data.sort(function (a, b) {
-          if (a.fullname > b.fullname) {
-            return -1;
-          }
-          if (a.fullname < b.fullname) {
-            return 1;
-          }
-          return 0;
-        });
-      }
-     
-      return data;
-    } else {
-      const col = data[0] && Object.keys(data[0]);
-      return data.filter((row) =>
-        col.some(
-          (column) =>
-            row[column].toLowerCase().indexOf(search.toLowerCase()) > -1
-        )
-      );
-    }
-  };
-  const currentItems = searchData(data).slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
-  const onDeleteSelectedRow = () => {
-    if (window.confirm("Are you sure about that?")) {
-      setData(data.filter((item) => item.isChecked !== "true"));
-      const arrDelete = data.filter((item) => item.isChecked !== "false");
-      if (!checkAll) {
-        for (let x in arrDelete) {
-          if (arrDelete[x].isChecked === "true") {
-            setTimeout(async () => {
-              await callApi(
-                `listUsers/${arrDelete[x].id}`,
-                "DELETE",
-                null
-              ).then((err) => {});
-            }, 500);
-            continue;
-          }
-        }
+const Form = (props) => {
+  const [valueName, setName] = useState("");
+  const [valueAdd, setAdd] = useState("");
+  const [valueEmail, setEmail] = useState("");
+  const [valuePhone, setPhone] = useState("");
+
+  const [nameValid, setNameValid] = useState(false);
+  const [addValid, setAddValid] = useState(false);
+  const [emailValid, setEmailValid] = useState(false);
+  const [phoneValid, setPhoneValid] = useState(false);
+
+  const [errorNameEmpty, setErrorNameEmpty] = useState(false);
+  const [errorPhoneEmpty, setErrorPhoneEmpty] = useState(false);
+  const [errorAddEmpty, setErrorAddEmpty] = useState(false);
+  const [errorEmailEmpty, setErrorEmailEmpty] = useState(false);
+
+  const [errorNameType, setErrorNameType] = useState(false);
+  const [errorPhoneType, setErrorPhoneType] = useState(false);
+  const [errorAddType, setErrorAddType] = useState(false);
+  const [errorEmailType, setErrorEmailType] = useState(false);
+
+  const [reacapcha, setRecapcha] = useState(false);
+
+  const [getUser, setGetUser] = useState("");
+
+  const id = props.match.params.id;
+  console.log(props.match);
+  //change input fullname
+  const onChangeName = useCallback(
+    (value) => {
+      setName(value);
+      console.log(valueName);
+      if (value === "" || value == null) {
+        setErrorNameEmpty(true);
+        setErrorNameType(false);
+        setNameValid(false);
+      } else if (value.length < 5) {
+        setErrorNameType(true);
+        setErrorNameEmpty(false);
+        setNameValid(false);
       } else {
-        for (let x in data) {
-          callApi(`listUsers/${data[x].id}`, "DELETE").then((err) => {
-            console.log(err);
-          });
-        }
+        console.log(value);
+        setNameValid(true);
+        setErrorNameEmpty(false);
+        setErrorNameType(false);
       }
-      alert("Delete multiple Successfully!");
+    },
+    [valueName]
+  );
+
+  //change input Address
+  const onChangeAdd = useCallback((value) => {
+    setAdd(value);
+    if (value === "" || value == null) {
+      setErrorAddEmpty(true);
+      setErrorAddType(false);
+      setAddValid(false);
+    } else if (value.length < 5) {
+      setErrorAddType(true);
+      setErrorAddEmpty(false);
+      setAddValid(false);
+    } else {
+      setErrorAddEmpty(false);
+      setErrorAddType(false);
+      setAddValid(true);
     }
-  };
-  const onDeleteUser = async (id) => {
-    // eslint-disable-next-line no-restricted-globals
-    if (confirm("Are you about that?")) {
-      await callApi(`listUsers/${id}`, "DELETE", null, {
-        headers: {
-          "Content-Type": "application/json",
+  }, []);
+
+  //change input phone
+  const onChangePhone = useCallback((value) => {
+    setPhone(value);
+    const regex = /(84|0[2|3|5|7|8|9])+([0-9]{8})\b/g;
+    setPhone(value);
+    if (value === "" || value === null) {
+      setErrorPhoneEmpty(true);
+      setErrorPhoneType(false);
+      setPhoneValid(false);
+    } else if (!regex.test(value)) {
+      setErrorPhoneEmpty(false);
+      setErrorPhoneType(true);
+      setPhoneValid(false);
+      console.log("FailType");
+    } else {
+      setErrorPhoneEmpty(false);
+      setErrorPhoneType(false);
+      setPhoneValid(true);
+    }
+  }, []);
+
+  //change input email
+  const onChangeEmail = useCallback((value) => {
+    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    setEmail(value);
+    if (value === "") {
+      setErrorEmailEmpty(true);
+      setEmailValid(false);
+      setErrorEmailType(false);
+      console.log("null");
+    } else if (!re.test(value)) {
+      setErrorEmailEmpty(false);
+      setErrorEmailType(true);
+      setEmailValid(false);
+      console.log("FailType");
+    } else {
+      setErrorEmailEmpty(false);
+      setErrorEmailType(false);
+      setEmailValid(true);
+      console.log("oke");
+    }
+  }, []);
+  //Process POST data
+  const fetchUser = useCallback(async () => {
+    let response = await fetch(
+      `https://606efb3f0c054f0017658138.mockapi.io/api/listUsers/${id}`
+    );
+    response = await response.json();
+    setGetUser(response);
+  }, [id]);
+
+  useEffect(() => {
+    if (id) {
+      fetchUser();
+      setName(getUser.fullname);
+      setAdd(getUser.address);
+      setPhone(getUser.phone);
+      setEmail(getUser.email);
+    }
+  }, [
+    id,
+    fetchUser,
+    getUser.fullname,
+    getUser.address,
+    getUser.phone,
+    getUser.email,
+  ]);
+  const onSaveNewUser = async () => {
+    if (id) {
+      console.log(id);
+      await callApi(
+        `listUsers/${id}`,
+        "PUT",
+        {
+          fullname: valueName,
+          phone: valuePhone,
+          email: valueEmail,
+          address: valueAdd,
         },
-      }).catch((error) => {
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      ).catch((error) => {
         console.log("axios error:", error);
       });
-      setData(data.filter((item) => item.id !== id));
-      alert("Delete Account Successfully!");
-    }
-  };
-  const onNextPage = () => {
-    setCurrentPage(currentPage + 1);
-    var total = currentPage * 5 + currentItems.length;
-    if (total >= searchData(data).length) {
-      setBtnNext(false);
-      setBtnPrev(true);
+      alert("Edit Account Successfully!");
+      props.history.push("/userList");
     } else {
-      setBtnPrev(true);
-    }
-  };
-  const onPrevPage = () => {
-    setCurrentPage(currentPage - 1);
-    if (currentPage === 2 || currentPage === 1) {
-      setBtnNext(true);
-      setBtnPrev(false);
-    } else {
-      setBtnNext(true);
-    }
-  };
-  useEffect(() => {
-    fetchAllData();
-  }, []);
-  const onChangeKeySearch = (value) => {
-    setSearch(value);
-    setCurrentPage(1);
-  };
-  const onReset = () => {
-    setBtnNext(true);
-    setBtnPrev(false);
-    if (search !== undefined) setSearch("");
-  };
-  const fetchAllData = () => {
-    fetch(`https://606efb3f0c054f0017658138.mockapi.io/api/listUsers`)
-      .then((response) => response.json())
-      .then((data) => {
-        setData(data);
-      })
-      .then((err) => {
-        console.log(err);
-      });
-  };
-  const checkBoxAll = async () => {
-    setCheckedAll(!checkAll);
-  };
-  function countItemsSelect() {
-    var count = 0;
-    for (let x in data) {
-      if (data[x].isChecked === "true") {
-        count++;
-      }
-    }
-    return count;
-  }
-  const editStatusItems = async (id, test) => {
-    await callApi(
-      `listUsers/${id}`,
-      "PUT",
-      {
-        isChecked: test,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
+      await callApi(
+        `listUsers`,
+        "POST",
+        {
+          fullname: valueName,
+          phone: valuePhone,
+          email: valueEmail,
+          address: valueAdd,
+          isChecked: "false",
         },
-      }
-    ).catch((error) => {
-      console.log("axios error:", error);
-    });
-    fetchAllData();
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      ).catch((error) => {
+        console.log("axios error:", error);
+      });
+      setRecapcha(false);
+      alert("Create Account Successfully!");
+      props.history.push("/userList");
+    }
   };
-  var rows = [];
-  currentItems.forEach((item) => {
-    rows.push([
-      <div key={item.id}>
-        <input
-          type="checkbox"
-          value={item.id}
-          onChange={() =>
-            editStatusItems(
-              item.id,
-              item.isChecked === "true" ? "false" : "true"
-            )
-          }
-          checked={checkAll ? true : item.isChecked === "true" ? true : false}
-        ></input>
-      </div>,
-      item.id,
-      item.fullname,
-      item.email,
-      item.phone,
-      <a
-        href={`https://www.google.com/maps/place/${item.address
-          .split(/[$&+,:;=?@#|'<>.^*()%!-]/)
-          .join("+")}`}
-        target="_blank"
-        rel="noreferrer"
-      >
-        {item.address}
-      </a>,
-      <div className="actions">
-        <Button primary>
-          <Link to={`/edit/user/${item.id}`}>Edit</Link>
-        </Button>{" "}
-        <Button
-          destructive
-          onClick={() => {
-            onDeleteUser(item.id);
-          }}
-        >
-          Delete
-        </Button>
-      </div>,
-    ]);
-  });
 
+  //show reCAPCHA
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (id) {
+      onSaveNewUser();
+    } else {
+      setRecapcha(true);
+    }
+  };
+  //Save Data
+  const onRecapcha = () => {
+    onSaveNewUser();
+  };
+//Button Back
+const goBack=()=>{
+  props.history.goBack();
+}
   return (
-    <div className="table">
+    <div className="form">
+      <br />
       <Layout>
         <Layout.Section>
-          <DisplayText className="create_user" size="medium">
-            User List
+          <DisplayText className="create_user" value={valueName} size="medium">
+            Create Users
           </DisplayText>
           <br></br>
-          <div className="flex">
-            <div>
-              {searchData(data).length > 0 && (
-                <Pagination
-                  label={`${currentPage}/${Math.ceil(
-                    searchData(data).length / itemsPerPage
-                  )}`}
-                  hasPrevious={btnPrev}
-                  onPrevious={() => {
-                    onPrevPage();
-                  }}
-                  hasNext={btnNext}
-                  onNext={() => {
-                    onNextPage();
-                  }}
+          <Card sectioned>
+            <FormLayout>
+              <TextField
+                label="Full Name(*)"
+                onChange={(e) => onChangeName(e)}
+                value={valueName}
+                placeholder="Enter your full name"
+              />
+              {errorNameEmpty && (
+                <InlineError message="Input fullname not Empty!" />
+              )}
+              {errorNameType && (
+                <InlineError message="Input fullname isvalid!" />
+              )}
+              <TextField
+                value={valuePhone}
+                label="Phone Nummber(*)"
+                onChange={(e) => onChangePhone(e)}
+                placeholder="Enter your phone"
+              />
+              {errorPhoneEmpty && (
+                <InlineError message="Input phone not Empty!" />
+              )}
+              {errorPhoneType && <InlineError message="Input isvalid!" />}
+              <TextField
+                label="Email(*)"
+                onChange={(e) => onChangeEmail(e)}
+                value={valueEmail}
+                placeholder="Enter your email"
+              />
+              {errorEmailEmpty && (
+                <InlineError message="Input email not Empty!" />
+              )}
+              {errorEmailType && <InlineError message="Input mail isvalid!" />}
+              <TextField
+                label="Address(*)"
+                onChange={(e) => onChangeAdd(e)}
+                value={valueAdd}
+                placeholder="Enter your Address"
+              />
+              <></>
+              {errorAddEmpty && (
+                <InlineError message="Input address not Empty!" />
+              )}
+              {errorAddType && <InlineError message="Input address isvalid!" />}
+              {addValid && emailValid && phoneValid && nameValid && !id &&(
+                <Button onClick={handleSubmit} primary>
+                  Submit
+                </Button>
+              )}
+              {id && (
+                <div className="button_edit">
+                  <Button onClick={handleSubmit} destructive>
+                    Save
+                  </Button>
+                  <Button onClick={goBack} primary>
+                   Back
+                  </Button>
+                </div>
+              )}
+              {reacapcha && (
+                <ReCAPTCHA
+                  // sitekey="6LftMKEaAAAAAMFVIG7Qcma2394rdYh5srsZlnXd"
+                  sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+                  onChange={onRecapcha}
                 />
               )}
-            </div>
-            {(countItemsSelect() > 0 || checkAll) && (
-              <div className="delRowSelect">
-                <Button destructive onClick={() => onDeleteSelectedRow()}>
-                  Delete Selected
-                </Button>
-              </div>
-            )}
-            <div className="form-search">
-              <div className="input_search">
-                <input
-                  id="search"
-                  className="form-control"
-                  onChange={(e) => onChangeKeySearch(e.target.value)}
-                  value={search}
-                  type="text"
-                  placeholder="Enter your key search..."
-                />
-              </div>
-              <div className="btn_search">
-                <Button onClick={onReset} primary>
-                  Reset
-                </Button>
-              </div>
-            </div>
-          </div>
-          <br />
-          <div className="list">
-            <Card>
-              <DataTable
-                columnContentTypes={[
-                  "",
-                  "text",
-                  "text",
-                  "text",
-                  "text",
-                  "text",
-                  "text",
-                ]}
-                headings={[
-                  <input
-                    type="checkbox"
-                    checked={checkAll}
-                    onChange={checkBoxAll}
-                  ></input>,
-                  <span>#ID</span>,
-                  <span onClick={sortUsersFN}>Full Name &#8597;</span>,
-                  <span onClick={sortUsersEmail}>Email </span>,
-                  <span onClick={sortUsersPhone}>Phone  </span>,
-                  <span onClick={sortUserAddress}>Address</span>,
-                  <span>Actions</span>,
-                ]}
-                rows={rows}
-              />
-            </Card>
-          </div>
-          <br />
-          <br />
+            </FormLayout>
+          </Card>
         </Layout.Section>
       </Layout>
     </div>
   );
 };
-export default ListUser;
+export default Form;
